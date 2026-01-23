@@ -1,9 +1,21 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Zenject;
+using Infrastructure;
+using Unity.Cinemachine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class CarController : MonoBehaviour
+public class CarController : MonoBehaviour, IInteractable
 {
+    private const float MS_TO_KMH = 3.6f;
+    private const int ACTIVE_CAMERA_PRIORITY = 100;
+    private const int INACTIVE_CAMERA_PRIORITY = 0;
+    private const float GROUND_CHECK_DISTANCE = 5f;
+    private const float GROUND_OFFSET = 0.05f;
+    private const float STEER_HELPER_MULTIPLIER = 10f;
+    private const float FRONT_WHEEL_TORQUE_SHARE = 0.3f;
+    private const float REAR_WHEEL_TORQUE_SHARE = 0.7f;
+
     [Header("Settings")]
     [SerializeField] private float maxMotorTorque = 2500f;
     [SerializeField] private float maxSteeringAngle = 35f;
@@ -20,6 +32,11 @@ public class CarController : MonoBehaviour
     [SerializeField] private float accelerationLerp = 5f;
     [SerializeField] private float maxSpeed = 120f;
     [SerializeField] private Vector3 centerOfMassOffset = new Vector3(0, -0.5f, 0.4f);
+
+    [Header("Interaction & Camera")]
+    [SerializeField] private CinemachineCamera carCamera;
+    [SerializeField] private Transform exitPoint;
+    [SerializeField] private float maxExitSpeedKmH = 15f;
 
     [Header("Wheel Colliders")]
     [SerializeField] private WheelCollider frontLeftCollider;
@@ -41,23 +58,126 @@ public class CarController : MonoBehaviour
     private float currentMotorTorque;
     private float currentBrakeTorque;
 
+    private GameStateController _gameStateController;
+    private InputAction _moveAction;
+    private InputAction _handbrakeAction;
+    private InputAction _exitAction;
+    private GameObject _currentPlayer;
+
     public bool IsHandbraking => isHandbraking;
-    public float CurrentSpeedKmH => rb.linearVelocity.magnitude * 3.6f;
+    public float CurrentSpeedKmH => rb != null ? rb.linearVelocity.magnitude * MS_TO_KMH : 0f;
     public float VerticalInput => verticalInput;
     public float CurrentBrakeTorque => currentBrakeTorque;
     public Rigidbody CarRigidbody => rb;
+    public string InteractionPrompt => "Press E to Drive";
 
-    private void Start()
+    [Inject]
+    public void Construct(GameStateController gameStateController, InputActionAsset inputActions)
+    {
+        _gameStateController = gameStateController;
+        var carMap = inputActions.FindActionMap("Car");
+        if (carMap != null)
+        {
+            _moveAction = carMap.FindAction("Move");
+            _handbrakeAction = carMap.FindAction("Handbrake");
+            _exitAction = carMap.FindAction("Exit");
+        }
+    }
+
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = centerOfMassOffset;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
-        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-        
+    }
+
+    private void Start()
+    {
         SetWheelStiffness(frontLeftCollider, normalStiffness);
         SetWheelStiffness(frontRightCollider, normalStiffness);
         SetWheelStiffness(rearLeftCollider, normalStiffness);
         SetWheelStiffness(rearRightCollider, normalStiffness);
+
+        if (carCamera != null) carCamera.Priority = INACTIVE_CAMERA_PRIORITY;
+        enabled = false;
+    }
+
+    public void Interact(GameObject interactor)
+    {
+        EnterCar(interactor);
+    }
+
+    private void EnterCar(GameObject interactor)
+    {
+        _currentPlayer = interactor;
+        
+        if (_currentPlayer != null)
+        {
+            _currentPlayer.transform.SetParent(transform);
+            _currentPlayer.transform.localPosition = Vector3.zero;
+            _currentPlayer.SetActive(false);
+        }
+
+        if (carCamera != null) carCamera.Priority = ACTIVE_CAMERA_PRIORITY;
+        
+        enabled = true;
+        _gameStateController.SetState(GameState.Car);
+        
+        if (_exitAction != null)
+            _exitAction.performed += OnExitPerformed;
+    }
+
+    private void OnExitPerformed(InputAction.CallbackContext context)
+    {
+        if (CurrentSpeedKmH > maxExitSpeedKmH)
+        {
+            return;
+        }
+        ExitCar();
+    }
+
+    private void ExitCar()
+    {
+        if (_exitAction != null)
+            _exitAction.performed -= OnExitPerformed;
+        
+        if (_currentPlayer != null)
+        {
+            _currentPlayer.transform.SetParent(null);
+            
+            Vector3 targetPosition = exitPoint.position;
+            if (Physics.Raycast(exitPoint.position + Vector3.up, Vector3.down, out RaycastHit hit, GROUND_CHECK_DISTANCE))
+            {
+                targetPosition = hit.point + Vector3.up * GROUND_OFFSET;
+            }
+
+            var controller = _currentPlayer.GetComponent<CharacterController>();
+            if (controller != null) controller.enabled = false;
+
+            Vector3 oldPosition = _currentPlayer.transform.position;
+            _currentPlayer.transform.position = targetPosition;
+            _currentPlayer.transform.rotation = exitPoint.rotation;
+
+            var playerVcam = _currentPlayer.GetComponentInChildren<CinemachineCamera>();
+            if (playerVcam != null)
+            {
+                playerVcam.OnTargetObjectWarped(_currentPlayer.transform, targetPosition - oldPosition);
+            }
+            
+            _currentPlayer.SetActive(true);
+            
+            if (controller != null) controller.enabled = true;
+        }
+
+        if (carCamera != null) carCamera.Priority = INACTIVE_CAMERA_PRIORITY;
+        enabled = false;
+        
+        horizontalInput = 0;
+        verticalInput = 0;
+        isHandbraking = false;
+        ApplyBrakeToWheels(brakeTorque, brakeTorque);
+        
+        _gameStateController.SetState(GameState.Player);
     }
 
     private void FixedUpdate()
@@ -72,80 +192,57 @@ public class CarController : MonoBehaviour
 
     private void GetInput()
     {
-        horizontalInput = 0;
-        verticalInput = 0;
-        isHandbraking = false;
+        if (_moveAction == null || _handbrakeAction == null) return;
 
-        if (Keyboard.current != null)
-        {
-            if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed) horizontalInput = -1;
-            if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed) horizontalInput = 1;
-            if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed) verticalInput = 1;
-            if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed) verticalInput = -1;
-            isHandbraking = Keyboard.current.spaceKey.isPressed;
-        }
+        Vector2 moveInput = _moveAction.ReadValue<Vector2>();
+        horizontalInput = moveInput.x;
+        verticalInput = moveInput.y;
+        isHandbraking = _handbrakeAction.IsPressed();
     }
 
     private void HandleMotor()
     {
-        float speedKmH = CurrentSpeedKmH;
-        float forwardSpeed = Vector3.Dot(transform.forward, rb.linearVelocity) * 3.6f;
+        if (rb == null) return;
 
+        float forwardSpeed = Vector3.Dot(transform.forward, rb.linearVelocity) * MS_TO_KMH;
         float targetMotorTorque = 0;
         float targetBrakeTorque = 0;
 
         if (verticalInput > 0.1f)
         {
             if (forwardSpeed < -1f) targetBrakeTorque = brakeTorque;
-            else if (speedKmH < maxSpeed) targetMotorTorque = verticalInput * maxMotorTorque;
+            else if (Mathf.Abs(forwardSpeed) < maxSpeed) targetMotorTorque = verticalInput * maxMotorTorque;
         }
         else if (verticalInput < -0.1f)
         {
             if (forwardSpeed > 1f) targetBrakeTorque = brakeTorque;
-            else if (speedKmH < maxSpeed) targetMotorTorque = verticalInput * maxMotorTorque;
+            else if (Mathf.Abs(forwardSpeed) < maxSpeed) targetMotorTorque = verticalInput * maxMotorTorque;
         }
 
         currentMotorTorque = targetMotorTorque;
+        currentBrakeTorque = (Mathf.Abs(targetMotorTorque) > 0.1f) ? 0 : Mathf.Lerp(currentBrakeTorque, targetBrakeTorque, Time.fixedDeltaTime * accelerationLerp);
 
-        if (Mathf.Abs(targetMotorTorque) > 0.1f)
-        {
-            currentBrakeTorque = 0;
-        }
-        else
-        {
-            currentBrakeTorque = Mathf.Lerp(currentBrakeTorque, targetBrakeTorque, Time.fixedDeltaTime * accelerationLerp);
-        }
+        if (frontLeftCollider) frontLeftCollider.motorTorque = currentMotorTorque * FRONT_WHEEL_TORQUE_SHARE;
+        if (frontRightCollider) frontRightCollider.motorTorque = currentMotorTorque * FRONT_WHEEL_TORQUE_SHARE;
+        if (rearLeftCollider) rearLeftCollider.motorTorque = currentMotorTorque * REAR_WHEEL_TORQUE_SHARE;
+        if (rearRightCollider) rearRightCollider.motorTorque = currentMotorTorque * REAR_WHEEL_TORQUE_SHARE;
 
-        frontLeftCollider.motorTorque = currentMotorTorque * 0.3f;
-        frontRightCollider.motorTorque = currentMotorTorque * 0.3f;
-        rearLeftCollider.motorTorque = currentMotorTorque * 0.7f;
-        rearRightCollider.motorTorque = currentMotorTorque * 0.7f;
-
-        if (isHandbraking)
-        {
-            ApplyBrakeToWheels(0, handbrakeTorque);
-        }
-        else
-        {
-            ApplyBrakeToWheels(currentBrakeTorque, currentBrakeTorque);
-        }
+        ApplyBrakeToWheels(isHandbraking ? 0 : currentBrakeTorque, isHandbraking ? handbrakeTorque : currentBrakeTorque);
     }
 
     private void ApplyBrakeToWheels(float frontBrake, float rearBrake)
     {
-        frontLeftCollider.brakeTorque = frontBrake;
-        frontRightCollider.brakeTorque = frontBrake;
-        rearLeftCollider.brakeTorque = rearBrake;
-        rearRightCollider.brakeTorque = rearBrake;
+        if (frontLeftCollider) frontLeftCollider.brakeTorque = frontBrake;
+        if (frontRightCollider) frontRightCollider.brakeTorque = frontBrake;
+        if (rearLeftCollider) rearLeftCollider.brakeTorque = rearBrake;
+        if (rearRightCollider) rearRightCollider.brakeTorque = rearBrake;
     }
 
     private void HandleHandbrakeFriction()
     {
         float currentRearStiffness = isHandbraking ? driftStiffness : normalStiffness;
-        SetWheelStiffness(rearLeftCollider, currentRearStiffness);
-        SetWheelStiffness(rearRightCollider, currentRearStiffness);
-        SetWheelStiffness(frontLeftCollider, normalStiffness);
-        SetWheelStiffness(frontRightCollider, normalStiffness);
+        if (rearLeftCollider) SetWheelStiffness(rearLeftCollider, currentRearStiffness);
+        if (rearRightCollider) SetWheelStiffness(rearRightCollider, currentRearStiffness);
     }
 
     private void SetWheelStiffness(WheelCollider wheel, float stiffness)
@@ -157,21 +254,21 @@ public class CarController : MonoBehaviour
 
     private void HandleSteering()
     {
-        float speedKmH = CurrentSpeedKmH;
-        float speedFactor = Mathf.InverseLerp(0, maxSpeed, speedKmH);
-        float dynamicSteerAngle = Mathf.Lerp(maxSteeringAngle, minSteeringAngle, speedFactor);
-
+        if (rb == null) return;
+        float speedKmH = rb.linearVelocity.magnitude * MS_TO_KMH;
+        float dynamicSteerAngle = Mathf.Lerp(maxSteeringAngle, minSteeringAngle, speedKmH / maxSpeed);
         float targetSteerAngle = horizontalInput * dynamicSteerAngle;
-        frontLeftCollider.steerAngle = targetSteerAngle;
-        frontRightCollider.steerAngle = targetSteerAngle;
+        if (frontLeftCollider) frontLeftCollider.steerAngle = targetSteerAngle;
+        if (frontRightCollider) frontRightCollider.steerAngle = targetSteerAngle;
     }
 
     private void ApplySteerHelper()
     {
+        if (rb == null) return;
         if (Mathf.Abs(horizontalInput) < 0.1f)
         {
             Vector3 angularVel = rb.angularVelocity;
-            angularVel.y *= (1f - steerHelper * Time.fixedDeltaTime * 10f);
+            angularVel.y *= (1f - steerHelper * Time.fixedDeltaTime * STEER_HELPER_MULTIPLIER);
             rb.angularVelocity = angularVel;
         }
     }
@@ -187,8 +284,7 @@ public class CarController : MonoBehaviour
     private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform)
     {
         if (wheelCollider == null || wheelTransform == null) return;
-        Vector3 pos;
-        Quaternion rot;
+        Vector3 pos; Quaternion rot;
         wheelCollider.GetWorldPose(out pos, out rot);
         wheelTransform.position = pos;
         wheelTransform.rotation = rot;
