@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour
             _mainCameraTransform = Camera.main.transform;
         }
 
-        var playerActionMap = inputActions.FindActionMap("Player"); // Assuming "Player" action map
+        var playerActionMap = inputActions.FindActionMap("Player"); 
         _moveAction = playerActionMap.FindAction(moveActionName);
         _sprintAction = playerActionMap.FindAction(sprintActionName);
     }
@@ -68,18 +68,15 @@ public class PlayerController : MonoBehaviour
 
         if (direction.magnitude >= 0.1f)
         {
-            // Calculate target angle based on camera rotation
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _mainCameraTransform.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _currentRotationVelocity, rotationSmoothTime);
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-            // Calculate movement direction relative to camera
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
             
             float currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
             _characterController.Move(moveDir.normalized * (currentSpeed * Time.deltaTime));
 
-            // Update Animator
             float speedPercent = isSprinting ? 1f : 0.5f;
             animator.SetFloat(SpeedHash, speedPercent, 0.1f, Time.deltaTime);
         }
@@ -93,7 +90,7 @@ public class PlayerController : MonoBehaviour
     {
         if (_characterController.isGrounded && _velocity.y < 0)
         {
-            _velocity.y = -2f; // Small downward force to keep grounded
+            _velocity.y = -2f; 
         }
 
         _velocity.y += gravity * Time.deltaTime;
