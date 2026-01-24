@@ -30,4 +30,7 @@ public class CarData : ScriptableObject
     public string moveActionName = "Move";
     public string handbrakeActionName = "Handbrake";
     public string exitActionName = "Exit";
+
+    [Header("Sub-Configs")]
+    public CarSoundSettings soundSettings; // Посилання на звуковий конфіг
 }
