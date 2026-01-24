@@ -1,61 +1,37 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using Zenject;
 
-public class CarVFXController : MonoBehaviour
+public class CarVFXController : ITickable, IInitializable, IDisposable
 {
-    [Header("References")]
-    [SerializeField] private CarController carController;
+    private readonly List<ICarVFXModule> modules;
 
-    [Header("Visual Effects")]
-    [SerializeField] private TrailRenderer[] skidMarks;
-    [SerializeField] private ParticleSystem[] tireSmoke;
-    [SerializeField] private GameObject brakeLights;
-
-    void Start()
+    public CarVFXController(List<ICarVFXModule> modules)
     {
-        if (brakeLights != null) brakeLights.SetActive(false);
-        ToggleSkidMarks(false);
+        this.modules = modules;
     }
 
-    void Update()
+    public void Initialize()
     {
-        if (carController == null) return;
-
-        HandleVisualEffects();
-    }
-
-    private void HandleVisualEffects()
-    {
-        bool isBrakingVisual = carController.IsHandbraking || carController.CurrentBrakeTorque > 10f;
-        if (brakeLights != null) brakeLights.SetActive(isBrakingVisual);
-
-        float speed = carController.CurrentSpeedKmH;
-        float angularVelY = Mathf.Abs(carController.CarRigidbody.angularVelocity.y);
-
-        bool shouldShowEffects = (carController.IsHandbraking && speed > 5f) || 
-                                 (carController.CurrentBrakeTorque > 1000f && speed > 15f) ||
-                                 (angularVelY > 1.5f && speed > 20f);
-
-        ToggleSkidMarks(shouldShowEffects);
-        ToggleSmoke(shouldShowEffects);
-    }
-
-    private void ToggleSkidMarks(bool toggle)
-    {
-        foreach (var trail in skidMarks)
+        foreach (var module in modules)
         {
-            if (trail != null) trail.emitting = toggle;
+            module.Initialize();
         }
     }
 
-    private void ToggleSmoke(bool toggle)
+    public void Tick()
     {
-        foreach (var smoke in tireSmoke)
+        foreach (var module in modules)
         {
-            if (smoke != null)
-            {
-                if (toggle && !smoke.isPlaying) smoke.Play();
-                else if (!toggle && smoke.isPlaying) smoke.Stop();
-            }
+            module.Tick();
+        }
+    }
+
+    public void Dispose()
+    {
+        foreach (var module in modules)
+        {
+            module.Dispose();
         }
     }
 }

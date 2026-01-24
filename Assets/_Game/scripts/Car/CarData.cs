@@ -18,7 +18,7 @@ public class CarData : ScriptableObject
     public float handbrakeTorque = 8000f;
 
     [Header("Physics & Stability")]
-    public Vector3 centerOfMassOffset = new Vector3(0, -0.5f, 0.4f);
+    public Vector3 centerOfMassOffset;
     public float normalStiffness = 1.0f;
     public float driftStiffness = 0.4f;
 
@@ -32,5 +32,6 @@ public class CarData : ScriptableObject
     public string exitActionName = "Exit";
 
     [Header("Sub-Configs")]
-    public CarSoundSettings soundSettings; // Посилання на звуковий конфіг
+    public CarSoundSettings soundSettings;
+    public CarVFXSettings vfxSettings;
 }
