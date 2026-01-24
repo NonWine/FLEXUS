@@ -6,18 +6,18 @@ using UnityEngine;
 public class CarBrain : IInitializable, IDisposable
 {
     private readonly GameStateController gameStateController;
-    private readonly CarInputHandler input;
     private readonly CarPhysics physics;
     private readonly CarData data;
     private readonly CarView view;
-    private readonly IOccupancyHandler occupancy;
     private readonly CarCameraHandler cameraHandler;
+    private readonly ICarInputHandler input;
+    private readonly IOccupancyHandler occupancy;
 
     public bool IsOccupied => occupancy.IsOccupied;
 
     public CarBrain(
         GameStateController gameStateController, 
-        CarInputHandler input, 
+        ICarInputHandler input, 
         CarPhysics physics, 
         CarData data,
         CarView view,

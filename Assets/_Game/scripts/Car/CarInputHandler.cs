@@ -3,58 +3,45 @@ using UnityEngine.InputSystem;
 using Zenject;
 using System;
 
-public class CarInputHandler : IInitializable, IDisposable, ICarInput
+public class CarInputHandler : CarInputBase, IInitializable, IDisposable, ICarInputHandler
 {
-    private readonly InputActionAsset inputActions;
-    private readonly CarData data;
-
-    private InputAction moveAction;
-    private InputAction handbrakeAction;
     private InputAction exitAction;
-
-    private bool enabled;
-
-    public float Throttle => enabled ? (moveAction?.ReadValue<Vector2>().y ?? 0f) : 0f;
-    public float Steer => enabled ? (moveAction?.ReadValue<Vector2>().x ?? 0f) : 0f;
-    public float Brake => enabled ? 0f : 1f;
-    public bool IsHandbraking => enabled && (handbrakeAction?.IsPressed() ?? false);
 
     public event Action OnExitPerformed;
 
-    public CarInputHandler(InputActionAsset inputActions, CarData data)
+    public CarInputHandler(InputActionAsset inputActions, CarData data) : base(inputActions, data)
     {
-        this.inputActions = inputActions;
-        this.data = data;
     }
 
-    public void Initialize()
+    public override void Initialize()
     {
+        base.Initialize();
+        
         var carMap = inputActions.FindActionMap(data.mapName);
-        moveAction = carMap.FindAction(data.moveActionName);
-        handbrakeAction = carMap.FindAction(data.handbrakeActionName);
         exitAction = carMap.FindAction(data.exitActionName);
         Disable();
     }
 
     public void Enable()
     {
-        if (enabled) return;
-        enabled = true;
+        if (isEnabled) return;
+        isEnabled = true;
 
         exitAction.performed += HandleExit;
     }
 
     public void Disable()
     {
-        if (!enabled)
+        if (!isEnabled)
         {
             exitAction.performed -= HandleExit;
-            enabled = false;
+            isEnabled = false;
             return;
         }
 
-        enabled = false;
-        exitAction.performed -= HandleExit;
+        isEnabled = false;
+        if (exitAction != null)
+            exitAction.performed -= HandleExit;
     }
 
     public void Dispose()

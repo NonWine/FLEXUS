@@ -7,6 +7,9 @@ public class CarData : ScriptableObject
     public float maxMotorTorque = 2500f;
     public float maxSpeed = 120f;
     public float accelerationLerp = 5f;
+    
+    [Header("Drivetrain")]
+    public DriveType driveType = DriveType.AWD;
 
     [Header("Steering")]
     public float maxSteeringAngle = 35f;
@@ -18,7 +21,7 @@ public class CarData : ScriptableObject
     public float handbrakeTorque = 8000f;
 
     [Header("Physics & Stability")]
-    public Vector3 centerOfMassOffset;
+    public Vector3 centerOfMassOffset = new Vector3(0, -0.5f, 0.4f);
     public float normalStiffness = 1.0f;
     public float driftStiffness = 0.4f;
 

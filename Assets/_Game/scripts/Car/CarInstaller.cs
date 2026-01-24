@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Zenject;
-using Unity.Cinemachine;
 
 public class CarInstaller : MonoInstaller
 {
@@ -47,6 +46,7 @@ public class CarInstaller : MonoInstaller
 
     private void SubComponents()
     {
+        Container.Bind<CarCameraHandler>().AsSingle();
         Container.Bind<IOccupancyHandler>().To<CarOccupancyHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarInputHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarPhysics>().AsSingle();

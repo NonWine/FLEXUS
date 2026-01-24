@@ -1,15 +1,13 @@
 ﻿using UnityEngine;
 using Zenject;
 
-public class CarPhysics : IFixedTickable
+public class CarPhysics : IFixedTickable, IVehiclePhysics
 {
     private const float MS_TO_KMH = 3.6f;
     private const float INPUT_THRESHOLD = 0.1f;
     private const float REVERSE_SPEED_THRESHOLD = -1f;
     private const float FORWARD_SPEED_THRESHOLD = 1f;
     private const float STEER_HELPER_MULTIPLIER = 10f;
-    private const float FRONT_TORQUE_SHARE = 0.3f;
-    private const float REAR_TORQUE_SHARE = 0.7f;
 
     private readonly Rigidbody rb;
     private readonly CarData data;
@@ -18,7 +16,7 @@ public class CarPhysics : IFixedTickable
  
     public float CurrentSpeedKmH => rb.linearVelocity.magnitude * MS_TO_KMH;
     public float CurrentBrakeTorque { get; private set; }
-    public Rigidbody Rigidbody => rb;
+    public float AngularVelocityY => Mathf.Abs(rb.angularVelocity.y);
 
     public CarPhysics(Rigidbody rb, CarData data, ICarInput input, WheelColliders wheels)
     {
@@ -66,16 +64,23 @@ public class CarPhysics : IFixedTickable
 
         CurrentBrakeTorque = (Mathf.Abs(targetMotorTorque) > INPUT_THRESHOLD) ? 0 : Mathf.Lerp(CurrentBrakeTorque, targetBrakeTorque, Time.fixedDeltaTime * data.accelerationLerp);
 
-        wheels.frontLeft.motorTorque = targetMotorTorque * FRONT_TORQUE_SHARE;
-        wheels.frontRight.motorTorque = targetMotorTorque * FRONT_TORQUE_SHARE;
-        wheels.rearLeft.motorTorque = targetMotorTorque * REAR_TORQUE_SHARE;
-        wheels.rearRight.motorTorque = targetMotorTorque * REAR_TORQUE_SHARE;
+        ApplyDriveTorque(targetMotorTorque);
 
         float rearBrake = input.IsHandbraking ? data.handbrakeTorque : CurrentBrakeTorque;
         wheels.frontLeft.brakeTorque = CurrentBrakeTorque;
         wheels.frontRight.brakeTorque = CurrentBrakeTorque;
         wheels.rearLeft.brakeTorque = rearBrake;
         wheels.rearRight.brakeTorque = rearBrake;
+    }
+
+    private void ApplyDriveTorque(float totalTorque)
+    {
+        CarPhysicsUtils.CalculateTorqueDistribution(data.driveType, out float frontShare, out float rearShare);
+
+        wheels.frontLeft.motorTorque = (totalTorque * frontShare) / 2f;
+        wheels.frontRight.motorTorque = (totalTorque * frontShare) / 2f;
+        wheels.rearLeft.motorTorque = (totalTorque * rearShare) / 2f;
+        wheels.rearRight.motorTorque = (totalTorque * rearShare) / 2f;
     }
 
     private void HandleHandbrakeFriction()

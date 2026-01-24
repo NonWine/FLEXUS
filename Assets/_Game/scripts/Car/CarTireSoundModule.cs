@@ -5,14 +5,14 @@ public class CarTireSoundModule : ICarSoundModule
     private const float SCREECH_SPEED_THRESHOLD = 10f;
 
     private readonly ICarInput input;
-    private readonly Rigidbody rb;
+    private readonly IVehiclePhysics vehiclePhysics;
     private readonly CarSoundView view;
     private readonly CarSoundSettings settings;
 
-    public CarTireSoundModule(ICarInput input, Rigidbody rb, CarSoundView view, CarSoundSettings settings)
+    public CarTireSoundModule(ICarInput input, IVehiclePhysics vehiclePhysics, CarSoundView view, CarSoundSettings settings)
     {
         this.input = input;
-        this.rb = rb;
+        this.vehiclePhysics = vehiclePhysics;
         this.view = view;
         this.settings = settings;
     }
@@ -22,8 +22,8 @@ public class CarTireSoundModule : ICarSoundModule
     public void Tick()
     {
         bool isDrifting = input.IsHandbraking;
-        float speed = rb.linearVelocity.magnitude;
-        float angularVelY = Mathf.Abs(rb.angularVelocity.y);
+        float speed = vehiclePhysics.CurrentSpeedKmH;
+        float angularVelY = vehiclePhysics.AngularVelocityY;
         
         if ((isDrifting && speed > settings.screechMinSpeed) || (angularVelY > settings.screechMinAngularVel && speed > SCREECH_SPEED_THRESHOLD))
         {
