@@ -1,8 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewCarData", menuName = "Configs/Car/Car Data")]
 public class CarData : ScriptableObject
 {
+    public string CarDataId;
+    
     [Header("Engine & Movement")]
     public float maxMotorTorque = 2500f;
     public float maxSpeed = 120f;
@@ -10,7 +13,6 @@ public class CarData : ScriptableObject
     
     [Header("Drivetrain")]
     public DriveType driveType = DriveType.AWD;
-
     [Header("Steering")]
     public float maxSteeringAngle = 35f;
     public float minSteeringAngle = 12f;
@@ -32,4 +34,9 @@ public class CarData : ScriptableObject
     public CarInputSettings inputSettings; // Нове посилання
     public CarSoundSettings soundSettings;
     public CarVFXSettings vfxSettings;
+
+    private void Awake()
+    {
+        CarDataId = Guid.NewGuid().ToString();
+    }
 }

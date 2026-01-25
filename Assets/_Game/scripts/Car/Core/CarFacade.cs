@@ -12,5 +12,5 @@ public class CarFacade
         this.transform = transform;
     }
     
-    public class Factory : PlaceholderFactory<CarFacade> { }
+    public class Factory : PlaceholderFactory<string,Transform,CarFacade> { }
 }
