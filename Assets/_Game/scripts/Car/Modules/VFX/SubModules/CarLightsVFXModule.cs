@@ -20,8 +20,7 @@ public class CarLightsVFXModule : ICarVFXModule
 
     public void Tick()
     {
-        bool isBraking = input.Brake > settings.visualBrakeThreshold || input.IsHandbraking;
-        view.brakeLights.SetActive(isBraking);
+        view.brakeLights.SetActive(input.IsHandbraking);
     }
 
     public void Dispose() { }

@@ -17,6 +17,7 @@ namespace Infrastructure
                 .NonLazy();
 
             Container.BindInitializableExecutionOrder<GameStateController>(-1000);
+        
             
         }
     }

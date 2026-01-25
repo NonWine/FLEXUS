@@ -25,11 +25,11 @@ public class CarTireEffectsVFXModule : ICarVFXModule
         float speed = physics.CurrentSpeedKmH;
         float angularVelY = physics.AngularVelocityY;
 
-        bool shouldShowEffects = (input.IsHandbraking && speed > settings.minSpeedForEffects) || 
+        bool shouldShowEffects = (speed > settings.minSpeedForEffects) || 
                                  (physics.CurrentBrakeTorque > settings.brakeTorqueThreshold && speed > settings.skidMinSpeed) ||
                                  (angularVelY > settings.driftAngularVelThreshold && speed > 20f);
-
-        ToggleEffects(shouldShowEffects);
+        
+        ToggleEffects(shouldShowEffects && input.IsHandbraking);
     }
 
     private void ToggleEffects(bool toggle)
