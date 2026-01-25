@@ -5,12 +5,10 @@ using Zenject;
 public class CarUxHandler : IInitializable, IDisposable
 {
     private readonly CarView view;
-    private readonly IOccupancyHandler occupancy;
 
-    public CarUxHandler(CarView view, IOccupancyHandler occupancy)
+    public CarUxHandler(CarView view)
     {
         this.view = view;
-        this.occupancy = occupancy;
     }
 
     public void Initialize()
@@ -29,7 +27,7 @@ public class CarUxHandler : IInitializable, IDisposable
     private void ShowUx()
     {
         view.Outline.OutlineColor = view.CarData.CarOutlineColor;
-        view.Outline.OutlineWidth = view.CarData.OutlineWidht;
+        view.Outline.OutlineWidth = view.CarData.OutlineWidth;
     }
 
     private void HideUx()
