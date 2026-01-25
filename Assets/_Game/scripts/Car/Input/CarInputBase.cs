@@ -24,8 +24,14 @@ public class CarInputBase : ICarInput
 
     public virtual void Initialize()
     {
-        var carMap = inputActions.FindActionMap(data.mapName);
-        moveAction = carMap.FindAction(data.moveActionName);
-        handbrakeAction = carMap.FindAction(data.handbrakeActionName);
+        if (data.inputSettings == null)
+        {
+            Debug.LogError($"[CarInput] InputSettings missing in CarData!");
+            return;
+        }
+
+        var carMap = inputActions.FindActionMap(data.inputSettings.mapName);
+        moveAction = carMap.FindAction(data.inputSettings.moveActionName);
+        handbrakeAction = carMap.FindAction(data.inputSettings.handbrakeActionName);
     }
 }

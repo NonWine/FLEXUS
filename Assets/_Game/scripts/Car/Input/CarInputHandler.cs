@@ -16,9 +16,8 @@ public class CarInputHandler : CarInputBase, IInitializable, IDisposable, ICarIn
     public override void Initialize()
     {
         base.Initialize();
-        
-        var carMap = inputActions.FindActionMap(data.mapName);
-        exitAction = carMap.FindAction(data.exitActionName);
+        var carMap = inputActions.FindActionMap(data.inputSettings.mapName);
+        exitAction = carMap.FindAction(data.inputSettings.exitActionName);
         Disable();
     }
 
@@ -26,7 +25,6 @@ public class CarInputHandler : CarInputBase, IInitializable, IDisposable, ICarIn
     {
         if (isEnabled) return;
         isEnabled = true;
-
         exitAction.performed += HandleExit;
     }
 
@@ -40,8 +38,7 @@ public class CarInputHandler : CarInputBase, IInitializable, IDisposable, ICarIn
         }
 
         isEnabled = false;
-        if (exitAction != null)
-            exitAction.performed -= HandleExit;
+        exitAction.performed -= HandleExit;
     }
 
     public void Dispose()

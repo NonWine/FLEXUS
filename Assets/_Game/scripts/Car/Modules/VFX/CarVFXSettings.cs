@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewCarVFXSettings", menuName = "Configs/Car VFX Settings")]
+[CreateAssetMenu(fileName = "NewCarVFXSettings", menuName = "Configs/Car/Car VFX Settings")]
 public class CarVFXSettings : ScriptableObject
 {
     public float minSpeedForEffects;

@@ -27,10 +27,10 @@ public class PlayerInputHandler : IInitializable, IDisposable , IPlayerInput
 
     public void Initialize()
     {
-        var map = inputActions.FindActionMap(data.mapName);
-        moveAction = map.FindAction(data.moveActionName);
-        sprintAction = map.FindAction(data.sprintActionName);
-        interactAction = map.FindAction(data.interactActionName);
+        var map = inputActions.FindActionMap(data.inputSettings.mapName);
+        moveAction = map.FindAction(data.inputSettings.moveActionName);
+        sprintAction = map.FindAction(data.inputSettings.sprintActionName);
+        interactAction = map.FindAction(data.inputSettings.interactActionName);
         interactAction.performed += HandleInteract;
         map.Enable();
     }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewCarData", menuName = "Configs/Car Data")]
+[CreateAssetMenu(fileName = "NewCarData", menuName = "Configs/Car/Car Data")]
 public class CarData : ScriptableObject
 {
     [Header("Engine & Movement")]
@@ -28,13 +28,8 @@ public class CarData : ScriptableObject
     [Header("Interaction")]
     public float maxExitSpeedKmH = 15f;
 
-    [Header("Input Settings")]
-    public string mapName = "Car";
-    public string moveActionName = "Move";
-    public string handbrakeActionName = "Handbrake";
-    public string exitActionName = "Exit";
-
-    [Header("Sub-Configs")]
+    [Header("Configs")]
+    public CarInputSettings inputSettings; // Нове посилання
     public CarSoundSettings soundSettings;
     public CarVFXSettings vfxSettings;
 }

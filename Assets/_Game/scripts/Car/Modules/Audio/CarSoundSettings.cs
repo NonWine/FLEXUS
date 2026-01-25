@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewCarSoundSettings", menuName = "Configs/Car Sound Settings")]
+[CreateAssetMenu(fileName = "NewCarSoundSettings", menuName = "Configs/Car/Car Sound Settings")]
 public class CarSoundSettings : ScriptableObject
 {
     [Header("Engine Sound")]
