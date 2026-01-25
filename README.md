@@ -3,12 +3,12 @@
 Реалізація системи керування та взаємодії з автомобілями з використанням принципів чистої архітектури та Dependency Injection.
 
 ## 🛠 Технологічний стек
-• Unity 6 (or latest 2022.3 LTS)
-• Zenject / Extenject: Dependency Injection framework.
-• Cinemachine: Procedural camera system.
-• UniTask: Efficient allocation-free async/await for Unity.
-• Sirenix Odin Inspector: Advanced inspector customization and serialization.
-• New Input System: Event-driven input handling.
+* **Unity 6** (or latest 2022.3 LTS)
+* **Zenject / Extenject:** Dependency Injection framework.
+* **Cinemachine:** Procedural camera system.
+* **UniTask:** Efficient allocation-free async/await for Unity.
+* **Sirenix Odin Inspector:** Advanced inspector customization and serialization.
+* **New Input System:** Event-driven input handling.
 
 ## 🏗 Архітектура
 Проект побудований на базі **MVC** з використанням патерну **Facade** для інкапсуляції логіки. Активно використовується **Data-Driven** підхід. 
