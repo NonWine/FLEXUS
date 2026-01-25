@@ -3,5 +3,4 @@
     public const int InactivePriority = 0;
     public const int DefaultPriority = 10;
     public const int ActiveVehiclePriority = 20;
-    public const int CutscenePriority = 100;
 }
