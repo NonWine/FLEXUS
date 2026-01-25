@@ -36,13 +36,13 @@ public class CarBrain : IInitializable, IDisposable
     public void Initialize()
     {
         input.OnExitPerformed += TryExit;
-        view.OnInteracted += EnterCar;
+        view.OnInteractedEvent += EnterCar;
     }
 
     public void Dispose()
     {
         input.OnExitPerformed -= TryExit;
-        view.OnInteracted -= EnterCar;
+        view.OnInteractedEvent -= EnterCar;
     }
 
     public void EnterCar(GameObject interactor)
@@ -53,6 +53,7 @@ public class CarBrain : IInitializable, IDisposable
         occupancy.Enter(interactor);
         cameraHandler.SetActive(true);
         gameStateController.SetState(GameState.Car);
+        view.HideUx();
     }
 
     private void TryExit()
@@ -61,7 +62,7 @@ public class CarBrain : IInitializable, IDisposable
         ExitCar();
     }
 
-    private void ExitCar()
+    public void ExitCar()
     {
         occupancy.Exit((player, warpDelta) => 
         {
@@ -69,6 +70,7 @@ public class CarBrain : IInitializable, IDisposable
             cameraHandler.SetActive(false);
             input.Disable();
             gameStateController.SetState(GameState.Player);
+            view.ShowUx();
         });
     }
 }

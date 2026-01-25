@@ -52,5 +52,6 @@ public class CarInstaller : MonoInstaller
         Container.BindInterfacesAndSelfTo<CarPhysics>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarBrain>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarVisuals>().AsSingle();
+        Container.BindInterfacesAndSelfTo<CarUxHandler>().AsSingle();
     }
 }

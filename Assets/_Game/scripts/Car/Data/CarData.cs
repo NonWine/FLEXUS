@@ -6,6 +6,10 @@ public class CarData : ScriptableObject
 {
     public string CarDataId;
     
+    [Header("Outline Settings")]
+    public Color32 CarOutlineColor = new Color32( 0,255,0,255);
+    public float OutlineWidht = 3f;
+    
     [Header("Engine & Movement")]
     public float maxMotorTorque = 2500f;
     public float maxSpeed = 120f;

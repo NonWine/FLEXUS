@@ -53,7 +53,9 @@ public class PlayerInteractionScanner : ITickable, IInteractionScanner
 
         if (currentInteractable != bestTarget)
         {
+            currentInteractable?.HideUx();
             currentInteractable = bestTarget;
+            currentInteractable?.ShowUx();
             OnInteractableChanged?.Invoke(currentInteractable);
         }
     }
