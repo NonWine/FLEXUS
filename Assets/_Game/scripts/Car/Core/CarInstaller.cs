@@ -19,11 +19,11 @@ public class CarInstaller : MonoInstaller
         
         // State Machine
         Container.BindInterfacesAndSelfTo<CarStateMachine>().AsSingle();
-        Container.Bind<CarEmptyState>().AsSingle();
-        Container.Bind<CarDrivingState>().AsSingle();
-        Container.Bind<CarExitState>().AsSingle();
+        Container.Bind<ICarState>().To<CarEmptyState>().AsSingle();
+        Container.Bind<ICarState>().To<CarDrivingState>().AsSingle();
+        Container.Bind<ICarState>().To<CarExitState>().AsSingle();
         
-        Container.BindInterfacesAndSelfTo<CarBrain>().AsSingle();
+        //Container.BindInterfacesAndSelfTo<CarBrain>().AsSingle();
         Container.Bind<CarFacade>().AsSingle();
     }
 
@@ -35,7 +35,6 @@ public class CarInstaller : MonoInstaller
         Container.BindInstance(view.Wheels).AsSingle();
         Container.BindInstance(view.Meshes).AsSingle();
         Container.Bind<Transform>().FromInstance(view.transform).AsSingle();
-        Container.Bind<CinemachineCamera>().WithId("Car").FromResolve();
     }
 
     private void Sounds()

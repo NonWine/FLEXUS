@@ -4,24 +4,28 @@ using Zenject;
 
 public class CarStateMachine : ITickable
 {
-    private readonly DiContainer container;
     private ICarState currentState;
     private readonly Dictionary<Type, ICarState> states = new Dictionary<Type, ICarState>();
 
-    public CarStateMachine(DiContainer container)
-    {
-        this.container = container;
-    }
 
-    public void RegisterState<T>() where T : ICarState
+    public CarStateMachine(List<ICarState> allStates)
     {
-        states[typeof(T)] = container.Resolve<T>();
+        foreach (var state in allStates)
+        {
+            states[state.GetType()] = state;
+        }
     }
 
     public void ChangeState<T>() where T : ICarState
     {
+        if (!states.TryGetValue(typeof(T), out var newState))
+        {
+            UnityEngine.Debug.LogError($"State {typeof(T)} not registered!");
+            return;
+        }
+
         currentState?.Exit();
-        currentState = states[typeof(T)];
+        currentState = newState;
         currentState.Enter();
     }
 

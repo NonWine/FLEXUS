@@ -11,9 +11,6 @@ public class CarBrain : IInitializable
 
     public void Initialize()
     {
-        stateMachine.RegisterState<CarEmptyState>();
-        stateMachine.RegisterState<CarDrivingState>();
-        
         stateMachine.ChangeState<CarEmptyState>();
     }
 }
