@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using Zenject;
+using Unity.Cinemachine;
+using Infrastructure;
 
 public class CarInstaller : MonoInstaller
 {
@@ -9,10 +11,19 @@ public class CarInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+
         ViewDependencies();
         Sounds();
         VFX();
         SubComponents();
+        
+        // State Machine
+        Container.BindInterfacesAndSelfTo<CarStateMachine>().AsSingle();
+        Container.Bind<CarEmptyState>().AsSingle();
+        Container.Bind<CarDrivingState>().AsSingle();
+        Container.Bind<CarExitState>().AsSingle();
+        
+        Container.BindInterfacesAndSelfTo<CarBrain>().AsSingle();
         Container.Bind<CarFacade>().AsSingle();
     }
 
@@ -24,6 +35,7 @@ public class CarInstaller : MonoInstaller
         Container.BindInstance(view.Wheels).AsSingle();
         Container.BindInstance(view.Meshes).AsSingle();
         Container.Bind<Transform>().FromInstance(view.transform).AsSingle();
+        Container.Bind<CinemachineCamera>().WithId("Car").FromResolve();
     }
 
     private void Sounds()
@@ -32,7 +44,6 @@ public class CarInstaller : MonoInstaller
         Container.BindInstance(view.CarData.soundSettings).AsSingle();
         Container.Bind<ICarSoundModule>().To<CarEngineSoundModule>().AsCached();
         Container.Bind<ICarSoundModule>().To<CarTireSoundModule>().AsCached();
-        Container.BindInterfacesAndSelfTo<CarSoundController>().AsSingle();
     }
 
     private void VFX()
@@ -41,17 +52,15 @@ public class CarInstaller : MonoInstaller
         Container.BindInstance(view.CarData.vfxSettings).AsSingle();
         Container.Bind<ICarVFXModule>().To<CarLightsVFXModule>().AsCached();
         Container.Bind<ICarVFXModule>().To<CarTireEffectsVFXModule>().AsCached();
-        Container.BindInterfacesAndSelfTo<CarVFXController>().AsSingle();
     }
 
     private void SubComponents()
     {
-        Container.Bind<CarCameraHandler>().AsSingle();
         Container.Bind<IOccupancyHandler>().To<CarOccupancyHandler>().AsSingle();
+        Container.Bind<CarCameraHandler>().AsSingle();
+        Container.BindInterfacesAndSelfTo<CarUxHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarInputHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarPhysics>().AsSingle();
-        Container.BindInterfacesAndSelfTo<CarBrain>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarVisuals>().AsSingle();
-        Container.BindInterfacesAndSelfTo<CarUxHandler>().AsSingle();
     }
 }

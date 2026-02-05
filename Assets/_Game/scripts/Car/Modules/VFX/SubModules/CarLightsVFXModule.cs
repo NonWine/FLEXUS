@@ -18,7 +18,7 @@ public class CarLightsVFXModule : ICarVFXModule
         view.brakeLights.SetActive(false);
     }
 
-    public void Tick()
+    public void Tick() 
     {
         view.brakeLights.SetActive(input.IsHandbraking);
     }
