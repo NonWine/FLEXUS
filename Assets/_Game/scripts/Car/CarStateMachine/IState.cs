@@ -1,4 +1,4 @@
-﻿public interface ICarState
+﻿public interface IState
 {
     void Enter();
     void Exit();

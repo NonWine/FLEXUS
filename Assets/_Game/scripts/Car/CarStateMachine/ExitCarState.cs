@@ -1,11 +1,11 @@
 ﻿using Zenject;
 
-public class CarExitState : CarState
+public class ExitCarState : CarState
 {
     private readonly IOccupancyHandler occupancy;
     private readonly CarCameraHandler cameraHandler;
 
-    public CarExitState(IOccupancyHandler occupancy, CarCameraHandler cameraHandler, SignalBus signalBus) : base(signalBus)
+    public ExitCarState(IOccupancyHandler occupancy, CarCameraHandler cameraHandler, SignalBus signalBus) : base(signalBus)
     {
         this.occupancy = occupancy;
         this.cameraHandler = cameraHandler;
@@ -16,7 +16,7 @@ public class CarExitState : CarState
         occupancy.Exit((player, warpDelta) => 
         {
             cameraHandler.WarpPlayerCamera(player, warpDelta);
-            ChangeState<CarEmptyState>();
+            ChangeState<EmptyCarState>();
         });
     }
 

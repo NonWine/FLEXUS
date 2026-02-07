@@ -2,7 +2,7 @@
 using Infrastructure;
 using Zenject;
 
-public class CarDrivingState : CarState
+public class DrivingCarState : CarState
 {
     private readonly ICarInputHandler input;
     private readonly CarCameraHandler cameraHandler;
@@ -10,7 +10,7 @@ public class CarDrivingState : CarState
     private readonly CarPhysics physics;
     private readonly CarData data;
 
-    public CarDrivingState(
+    public DrivingCarState(
         ICarInputHandler input, 
         CarCameraHandler cameraHandler, 
         GameStateController gameStateController,
@@ -45,7 +45,7 @@ public class CarDrivingState : CarState
     {
         if (physics.CurrentSpeedKmH > data.maxExitSpeedKmH) return;
         
-        ChangeState<CarExitState>();
+        ChangeState<ExitCarState>();
     }
 
 }

@@ -11,7 +11,7 @@ public class CarFacade
     public CarFacade(Transform transform, CarStateMachine carStateMachine)
     {
         this.transform = transform;
-        carStateMachine.ChangeState(typeof(CarEmptyState));
+        carStateMachine.ChangeState(typeof(EmptyCarState));
     }
     
     public class Factory : PlaceholderFactory<string,Transform,CarFacade> { }

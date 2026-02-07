@@ -1,8 +1,7 @@
 ﻿using Zenject;
 
-public abstract class CarState : ICarState
+public abstract class  CarState: IState 
 {
- 
     protected readonly SignalBus signalBus;
 
     public CarState(SignalBus signalBus)
@@ -19,11 +18,12 @@ public abstract class CarState : ICarState
         
     }
     
-    protected void ChangeState<T>() where T : ICarState 
+    protected void ChangeState<T>() where T : IState 
     {
         signalBus.Fire(new ChangeCarStateSignal()
         {
             TargetStateType = typeof(T)
         });
     }
+    
 }

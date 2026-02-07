@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using Zenject;
 
-public class CarEmptyState : CarState
+public class EmptyCarState : CarState
 {
     private readonly CarView view;
     private readonly IOccupancyHandler occupancy;
 
-    public CarEmptyState(CarView view, IOccupancyHandler occupancy, SignalBus signalBus) : base(signalBus)
+    public EmptyCarState(CarView view, IOccupancyHandler occupancy, SignalBus signalBus) : base(signalBus)
     {
         this.view = view;
         this.occupancy = occupancy;
@@ -27,7 +27,7 @@ public class CarEmptyState : CarState
         if (occupancy.IsOccupied) return;
         
         occupancy.Enter(signal.Interactor);
-        ChangeState<CarDrivingState>();
+        ChangeState<DrivingCarState>();
     }
 
     public override void Tick() { }

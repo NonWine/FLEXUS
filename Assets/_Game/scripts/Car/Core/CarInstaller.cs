@@ -24,9 +24,9 @@ public class CarInstaller : MonoInstaller
        
         // State Machine
         Container.BindInterfacesAndSelfTo<CarStateMachine>().AsSingle();
-        Container.Bind<ICarState>().To<CarEmptyState>().AsSingle();
-        Container.Bind<ICarState>().To<CarDrivingState>().AsSingle();
-        Container.Bind<ICarState>().To<CarExitState>().AsSingle();
+        Container.Bind<IState>().To<EmptyCarState>().AsSingle();
+        Container.Bind<IState>().To<DrivingCarState>().AsSingle();
+        Container.Bind<IState>().To<ExitCarState>().AsSingle();
         
         Container.Bind<CarFacade>().AsSingle();
     }

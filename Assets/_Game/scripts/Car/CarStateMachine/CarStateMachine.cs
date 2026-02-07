@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using Zenject;
 
-public class CarStateMachine : ITickable , IInitializable , IDisposable
+public class CarStateMachine : ITickable, IInitializable, IDisposable
 {
-    private ICarState currentState;
-    private readonly Dictionary<Type, ICarState> states = new Dictionary<Type, ICarState>();
+    private IState currentState;
+    private readonly Dictionary<Type, IState> states = new Dictionary<Type, IState>();
     private readonly SignalBus signalBus;
 
-    public CarStateMachine(SignalBus signalBus, List<ICarState> allStates)
+    public CarStateMachine(SignalBus signalBus, List<IState> allStates)
     {
         this.signalBus = signalBus;
         foreach (var state in allStates)
@@ -17,11 +17,14 @@ public class CarStateMachine : ITickable , IInitializable , IDisposable
         }
     }
 
-    public void ChangeState(Type state)
+    public void ChangeState(Type stateType)
     {
-        if (!states.TryGetValue(state, out var newState))
+        // Захист від повторного входу в той самий стан
+        if (currentState != null && currentState.GetType() == stateType) return;
+
+        if (!states.TryGetValue(stateType, out var newState))
         {
-            UnityEngine.Debug.LogError($"State {state} not registered!");
+            UnityEngine.Debug.LogError($"State {stateType} not registered!");
             return;
         }
 
@@ -37,6 +40,7 @@ public class CarStateMachine : ITickable , IInitializable , IDisposable
 
     public void Dispose()
     {
+        currentState?.Exit();
         signalBus.TryUnsubscribe<ChangeCarStateSignal>(OnChangeStateSignal);
     }
 
@@ -48,7 +52,6 @@ public class CarStateMachine : ITickable , IInitializable , IDisposable
     public void Initialize()
     {
         signalBus.Subscribe<ChangeCarStateSignal>(OnChangeStateSignal);
-        
-        ChangeState(typeof(CarEmptyState));
+        ChangeState(typeof(EmptyCarState));
     }
 }
