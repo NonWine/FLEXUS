@@ -1,49 +1,62 @@
 ﻿using System;
+using Infrastructure;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Zenject;
 
-namespace Infrastructure
-{
-    public class GameStateController : IInitializable
+    public class GameStateController : IInitializable , IDisposable
     {
-        private readonly InputActionAsset _inputActions;
-        private GameState _currentState;
+        private readonly InputActionAsset inputActions;
+        private readonly SignalBus signalBus;
+        private GameState currentState;
 
         public event Action<GameState> OnStateChanged;
 
-        public GameStateController(InputActionAsset inputActions)
+        public GameStateController(InputActionAsset inputActions, SignalBus signalBus)
         {
-            _inputActions = inputActions;
+            this.inputActions = inputActions;
+            this.signalBus = signalBus;
         }
 
         public void Initialize()
         {
             SetState(GameState.Player);
+            signalBus.Subscribe<VehicleOccupiedSignal>(OnVehicleOccupied);
         }
 
         public void SetState(GameState newState)
         {
-            _currentState = newState;
+            currentState = newState;
             UpdateInputMaps();
-            OnStateChanged?.Invoke(_currentState);
+            OnStateChanged?.Invoke(currentState);
         }
-
+        
+        public void Dispose()
+        {
+            signalBus.Unsubscribe<VehicleOccupiedSignal>(OnVehicleOccupied);
+        }
+        
         private void UpdateInputMaps()
         {
-            var playerMap = _inputActions.FindActionMap("Player");
-            var carMap = _inputActions.FindActionMap("Car");
+            var playerMap = inputActions.FindActionMap("Player");
+            var carMap = inputActions.FindActionMap("Car");
 
-            if (_currentState == GameState.Player)
+            if (currentState == GameState.Player)
             {
                 carMap?.Disable();
                 playerMap?.Enable();
             }
-            else if (_currentState == GameState.Car)
+            else if (currentState == GameState.Car)
             {
                 playerMap?.Disable();
                 carMap?.Enable();
             }
         }
+        
+        private void OnVehicleOccupied(VehicleOccupiedSignal vehicleOccupiedSignal)
+        {
+            SetState(vehicleOccupiedSignal.IsOccupied ? GameState.Car : GameState.Player);
+        }
+
+
     }
-}

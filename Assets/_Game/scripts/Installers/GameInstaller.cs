@@ -11,7 +11,10 @@ namespace Infrastructure
         public override void InstallBindings()
         {
             Container.BindInstance(inputActions).AsSingle();
-
+            
+            SignalBusInstaller.Install(Container);
+            Container.DeclareSignal<VehicleOccupiedSignal>(); 
+            
             Container.BindInterfacesAndSelfTo<GameStateController>()
                 .AsSingle()
                 .NonLazy();

@@ -1,11 +1,10 @@
-﻿using Zenject;
-
+﻿
 public class ExitCarState : CarState
 {
     private readonly IOccupancyHandler occupancy;
     private readonly CarCameraHandler cameraHandler;
 
-    public ExitCarState(IOccupancyHandler occupancy, CarCameraHandler cameraHandler, SignalBus signalBus) : base(signalBus)
+    public ExitCarState(IOccupancyHandler occupancy, CarCameraHandler cameraHandler) 
     {
         this.occupancy = occupancy;
         this.cameraHandler = cameraHandler;
@@ -23,9 +22,5 @@ public class ExitCarState : CarState
     public override void Exit()
     {
         
-    }
-
-    public override void Tick()
-    {
     }
 }

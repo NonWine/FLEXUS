@@ -4,4 +4,3 @@ public struct ChangeCarStateSignal
 {
     public Type TargetStateType;
 }
-

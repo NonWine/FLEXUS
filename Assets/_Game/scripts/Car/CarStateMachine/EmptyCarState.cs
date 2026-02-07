@@ -6,7 +6,7 @@ public class EmptyCarState : CarState
     private readonly CarView view;
     private readonly IOccupancyHandler occupancy;
 
-    public EmptyCarState(CarView view, IOccupancyHandler occupancy, SignalBus signalBus) : base(signalBus)
+    public EmptyCarState(CarView view, IOccupancyHandler occupancy )
     {
         this.view = view;
         this.occupancy = occupancy;

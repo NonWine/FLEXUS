@@ -1,26 +1,19 @@
-﻿using UnityEngine;
-using Infrastructure;
-using Zenject;
-
+﻿
 public class DrivingCarState : CarState
 {
     private readonly ICarInputHandler input;
     private readonly CarCameraHandler cameraHandler;
-    private readonly GameStateController gameStateController;
     private readonly CarPhysics physics;
     private readonly CarData data;
 
     public DrivingCarState(
         ICarInputHandler input, 
         CarCameraHandler cameraHandler, 
-        GameStateController gameStateController,
         CarPhysics physics,
-        CarData data,
-        SignalBus signalBus) : base(signalBus)
+        CarData data) 
     {
         this.input = input;
         this.cameraHandler = cameraHandler;
-        this.gameStateController = gameStateController;
         this.physics = physics;
         this.data = data;
     }
@@ -29,7 +22,7 @@ public class DrivingCarState : CarState
     {
         input.Enable();
         cameraHandler.SetActive(true);
-        gameStateController.SetState(GameState.Car);
+        signalBus.Fire(new VehicleOccupiedSignal { IsOccupied = true });
         signalBus.Subscribe<CarExitRequestSignal>(HandleExitRequest);
     }
 
@@ -37,7 +30,7 @@ public class DrivingCarState : CarState
     {
         input.Disable();
         cameraHandler.SetActive(false);
-        gameStateController.SetState(GameState.Player);
+        signalBus.Fire(new VehicleOccupiedSignal { IsOccupied = false });
         signalBus.Unsubscribe<CarExitRequestSignal>(HandleExitRequest);
     }
 

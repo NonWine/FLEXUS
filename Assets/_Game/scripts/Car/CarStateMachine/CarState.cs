@@ -2,12 +2,8 @@
 
 public abstract class  CarState: IState 
 {
-    protected readonly SignalBus signalBus;
-
-    public CarState(SignalBus signalBus)
-    {
-        this.signalBus = signalBus;
-    }
+   [Inject] protected readonly SignalBus signalBus;
+   
     
     public abstract void Enter();
 

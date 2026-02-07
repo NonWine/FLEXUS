@@ -5,7 +5,7 @@ public class EnterCarState : CarState
 {
     private readonly IOccupancyHandler occupancy;
 
-    public EnterCarState(SignalBus signalBus, IOccupancyHandler occupancy) : base(signalBus)
+    public EnterCarState( IOccupancyHandler occupancy) 
     {
         this.occupancy = occupancy;
     }

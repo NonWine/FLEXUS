@@ -1,37 +1,55 @@
 ﻿using System;
-using UnityEngine;
 using Zenject;
 
 public class CarUxHandler : IInitializable, IDisposable
 {
     private readonly CarView view;
+    private readonly SignalBus signalBus;
 
-    public CarUxHandler(CarView view)
+
+    public CarUxHandler(CarView view, SignalBus signalBus)
     {
         this.view = view;
+        this.signalBus = signalBus;
     }
 
     public void Initialize()
     {
-        view.OnShowUxEvent += ShowUx;
-        view.OnHideUxEvent += HideUx;
-        HideUx();
+        view.OnShowUxEvent += ShowOutline;
+        view.OnHideUxEvent += HideOutline;
+        signalBus.Subscribe<VehicleOccupiedSignal>(OnVehicleOccupiedChanged);
     }
 
     public void Dispose()
     {
-        view.OnShowUxEvent -= ShowUx;
-        view.OnHideUxEvent -= HideUx;
+        view.OnShowUxEvent -= ShowOutline;
+        view.OnHideUxEvent -= HideOutline;
+        signalBus.Unsubscribe<VehicleOccupiedSignal>(OnVehicleOccupiedChanged);
     }
 
-    private void ShowUx()
+    private void OnVehicleOccupiedChanged(VehicleOccupiedSignal signal)
     {
-        view.Outline.OutlineColor = view.CarData.CarOutlineColor;
-        view.Outline.OutlineWidth = view.CarData.OutlineWidth;
+        if (signal.IsOccupied)
+        {
+            HideOutline();
+        }
     }
 
-    private void HideUx()
+
+    private void ShowOutline()
     {
-        view.Outline.OutlineWidth = 0f;
+        if (view.Outline != null)
+        {
+            view.Outline.OutlineColor = view.CarData.CarOutlineColor;
+            view.Outline.OutlineWidth = view.CarData.OutlineWidth;
+        }
+    }
+
+    private void HideOutline()
+    {
+        if (view.Outline != null)
+        {
+            view.Outline.OutlineWidth = 0f;
+        }
     }
 }

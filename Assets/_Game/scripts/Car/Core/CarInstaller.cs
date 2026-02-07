@@ -10,25 +10,28 @@ public class CarInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-
         ViewDependencies();
         Sounds();
         VFX();
         SubComponents();
-        
-        //signals
-        SignalBusInstaller.Install(Container);
-        Container.DeclareSignal<ChangeCarStateSignal>();
-        Container.DeclareSignal<CarInteractionSignal>();
-        Container.DeclareSignal<CarExitRequestSignal>();
-       
-        // State Machine
+        Signals();
+        StateMachine();
+        Container.Bind<CarFacade>().AsSingle();
+    }
+
+    private void StateMachine()
+    {
         Container.BindInterfacesAndSelfTo<CarStateMachine>().AsSingle();
         Container.Bind<IState>().To<EmptyCarState>().AsSingle();
         Container.Bind<IState>().To<DrivingCarState>().AsSingle();
         Container.Bind<IState>().To<ExitCarState>().AsSingle();
-        
-        Container.Bind<CarFacade>().AsSingle();
+    }
+
+    private void Signals()
+    {
+        Container.DeclareSignal<ChangeCarStateSignal>();
+        Container.DeclareSignal<CarInteractionSignal>();
+        Container.DeclareSignal<CarExitRequestSignal>();
     }
 
     private void ViewDependencies()

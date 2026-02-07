@@ -1,8 +1,5 @@
-﻿namespace Infrastructure
+﻿public enum GameState
 {
-    public enum GameState
-    {
-        Player,
-        Car
-    }
+    Player,
+    Car
 }
