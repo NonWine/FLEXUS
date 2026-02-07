@@ -16,11 +16,14 @@ public class CarStateMachine : ITickable, IInitializable, IDisposable
             states[state.GetType()] = state;
         }
     }
-
-    public void ChangeState(Type stateType)
+    
+    public void ChangeState<T>() where T : IState
     {
-        // Захист від повторного входу в той самий стан
-        if (currentState != null && currentState.GetType() == stateType) return;
+        ChangeState(typeof(T));
+    }
+
+    private void ChangeState(Type stateType)
+    {
 
         if (!states.TryGetValue(stateType, out var newState))
         {
@@ -52,6 +55,6 @@ public class CarStateMachine : ITickable, IInitializable, IDisposable
     public void Initialize()
     {
         signalBus.Subscribe<ChangeCarStateSignal>(OnChangeStateSignal);
-        ChangeState(typeof(EmptyCarState));
+        ChangeState<EmptyCarState>();
     }
 }

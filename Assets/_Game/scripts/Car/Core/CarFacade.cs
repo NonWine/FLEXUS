@@ -4,14 +4,12 @@ using Zenject;
 public class CarFacade
 {
     private readonly Transform transform;
-    private readonly CarStateMachine stateMachine;
 
     public Transform Transform => transform;
 
-    public CarFacade(Transform transform, CarStateMachine carStateMachine)
+    public CarFacade(Transform transform)
     {
         this.transform = transform;
-        carStateMachine.ChangeState(typeof(EmptyCarState));
     }
     
     public class Factory : PlaceholderFactory<string,Transform,CarFacade> { }

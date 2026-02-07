@@ -27,9 +27,6 @@ public class EmptyCarState : CarState
         if (occupancy.IsOccupied) return;
         
         occupancy.Enter(signal.Interactor);
-        ChangeState<DrivingCarState>();
+        ChangeState<EnterCarState>();
     }
-
-    public override void Tick() { }
-    
 }
