@@ -29,7 +29,7 @@ public class CarTireEffectsVFXModule : ICarVFXModule
                                  (physics.CurrentBrakeTorque > settings.brakeTorqueThreshold && speed > settings.skidMinSpeed) ||
                                  (angularVelY > settings.driftAngularVelThreshold && speed > 20f);
         
-        ToggleEffects(shouldShowEffects && input.IsHandbraking);
+        ToggleEffects(speed >= settings.minSpeedForEffects && input.IsHandbraking);
     }
 
     private void ToggleEffects(bool toggle)

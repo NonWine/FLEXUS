@@ -1,39 +1,35 @@
 ﻿using UnityEngine;
-using System;
+using Zenject;
 
-public class CarEmptyState : ICarState, IDisposable
+public class CarEmptyState : CarState
 {
     private readonly CarView view;
     private readonly IOccupancyHandler occupancy;
-    private readonly CarStateMachine stateMachine;
 
-    public CarEmptyState(CarView view, IOccupancyHandler occupancy, CarStateMachine stateMachine)
+    public CarEmptyState(CarView view, IOccupancyHandler occupancy, SignalBus signalBus) : base(signalBus)
     {
         this.view = view;
         this.occupancy = occupancy;
-        this.stateMachine = stateMachine;
     }
 
-    public void Enter()
+    public override void Enter()
     {
-        view.OnInteractedEvent += HandleInteraction;
-        view.ShowUx();
+        signalBus.Subscribe<CarInteractionSignal>(HandleInteraction);
     }
 
-    public void Exit()
+    public override void Exit()
     {
-        view.OnInteractedEvent -= HandleInteraction;
-        view.HideUx();
+        signalBus.Unsubscribe<CarInteractionSignal>(HandleInteraction);
     }
 
-    private void HandleInteraction(GameObject interactor)
+    private void HandleInteraction(CarInteractionSignal signal)
     {
         if (occupancy.IsOccupied) return;
         
-        occupancy.Enter(interactor);
-        stateMachine.ChangeState<CarDrivingState>();
+        occupancy.Enter(signal.Interactor);
+        ChangeState<CarDrivingState>();
     }
 
-    public void Tick() { }
-    public void Dispose() => Exit();
+    public override void Tick() { }
+    
 }

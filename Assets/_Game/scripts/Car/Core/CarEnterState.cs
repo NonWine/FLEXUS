@@ -1,9 +1,15 @@
 ﻿using UnityEngine;
+using Zenject;
 
 public class CarEnterState : CarState
 {
     private readonly IOccupancyHandler occupancy;
-    
+
+    public CarEnterState(SignalBus signalBus, IOccupancyHandler occupancy) : base(signalBus)
+    {
+        this.occupancy = occupancy;
+    }
+
     public override void Enter()
     {
         
@@ -14,7 +20,10 @@ public class CarEnterState : CarState
         if (occupancy.IsOccupied) return;
 
         occupancy.Enter(interactor);
-        stateMachine.ChangeState<CarDrivingState>();
+        signalBus.Fire(new ChangeCarStateSignal 
+        { 
+            TargetStateType = typeof(CarExitState) 
+        });    
     }
 
     public override void Exit()

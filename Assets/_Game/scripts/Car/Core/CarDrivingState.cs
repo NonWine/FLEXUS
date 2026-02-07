@@ -1,15 +1,14 @@
 ﻿using UnityEngine;
 using Infrastructure;
-using System;
+using Zenject;
 
-public class CarDrivingState : ICarState, IDisposable
+public class CarDrivingState : CarState
 {
     private readonly ICarInputHandler input;
     private readonly CarCameraHandler cameraHandler;
     private readonly GameStateController gameStateController;
     private readonly CarPhysics physics;
     private readonly CarData data;
-    private readonly CarStateMachine stateMachine;
 
     public CarDrivingState(
         ICarInputHandler input, 
@@ -17,39 +16,36 @@ public class CarDrivingState : ICarState, IDisposable
         GameStateController gameStateController,
         CarPhysics physics,
         CarData data,
-        CarStateMachine stateMachine)
+        SignalBus signalBus) : base(signalBus)
     {
         this.input = input;
         this.cameraHandler = cameraHandler;
         this.gameStateController = gameStateController;
         this.physics = physics;
         this.data = data;
-        this.stateMachine = stateMachine;
     }
 
-    public void Enter()
+    public override void Enter()
     {
         input.Enable();
         cameraHandler.SetActive(true);
         gameStateController.SetState(GameState.Car);
-        input.OnExitPerformed += TryExit;
+        signalBus.Subscribe<CarExitRequestSignal>(HandleExitRequest);
     }
 
-    public void Exit()
+    public override void Exit()
     {
-        input.OnExitPerformed -= TryExit;
         input.Disable();
         cameraHandler.SetActive(false);
         gameStateController.SetState(GameState.Player);
+        signalBus.Unsubscribe<CarExitRequestSignal>(HandleExitRequest);
     }
 
-    private void TryExit()
+    private void HandleExitRequest()
     {
         if (physics.CurrentSpeedKmH > data.maxExitSpeedKmH) return;
+        
+        ChangeState<CarExitState>();
+    }
 
-        stateMachine.ChangeState<CarExitState>();
-    } 
-
-    public void Tick() { }
-    public void Dispose() => Exit();
 }

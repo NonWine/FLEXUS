@@ -11,6 +11,5 @@ public class CarBrain : IInitializable
 
     public void Initialize()
     {
-        stateMachine.ChangeState<CarEmptyState>();
     }
 }

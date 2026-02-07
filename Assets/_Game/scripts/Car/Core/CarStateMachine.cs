@@ -2,25 +2,26 @@
 using System.Collections.Generic;
 using Zenject;
 
-public class CarStateMachine : ITickable
+public class CarStateMachine : ITickable , IInitializable , IDisposable
 {
     private ICarState currentState;
     private readonly Dictionary<Type, ICarState> states = new Dictionary<Type, ICarState>();
+    private readonly SignalBus signalBus;
 
-
-    public CarStateMachine(List<ICarState> allStates)
+    public CarStateMachine(SignalBus signalBus, List<ICarState> allStates)
     {
+        this.signalBus = signalBus;
         foreach (var state in allStates)
         {
             states[state.GetType()] = state;
         }
     }
 
-    public void ChangeState<T>() where T : ICarState
+    public void ChangeState(Type state)
     {
-        if (!states.TryGetValue(typeof(T), out var newState))
+        if (!states.TryGetValue(state, out var newState))
         {
-            UnityEngine.Debug.LogError($"State {typeof(T)} not registered!");
+            UnityEngine.Debug.LogError($"State {state} not registered!");
             return;
         }
 
@@ -32,5 +33,22 @@ public class CarStateMachine : ITickable
     public void Tick()
     {
         currentState?.Tick();
+    }
+
+    public void Dispose()
+    {
+        signalBus.TryUnsubscribe<ChangeCarStateSignal>(OnChangeStateSignal);
+    }
+
+    private void OnChangeStateSignal(ChangeCarStateSignal signal)
+    {
+        ChangeState(signal.TargetStateType);
+    }
+    
+    public void Initialize()
+    {
+        signalBus.Subscribe<ChangeCarStateSignal>(OnChangeStateSignal);
+        
+        ChangeState(typeof(CarEmptyState));
     }
 }

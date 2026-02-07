@@ -1,32 +1,31 @@
-﻿public class CarExitState : ICarState
+﻿using Zenject;
+
+public class CarExitState : CarState
 {
     private readonly IOccupancyHandler occupancy;
     private readonly CarCameraHandler cameraHandler;
-    private readonly CarStateMachine stateMachine;
 
-    public CarExitState(IOccupancyHandler occupancy, CarCameraHandler cameraHandler, CarStateMachine stateMachine, CarData data)
+    public CarExitState(IOccupancyHandler occupancy, CarCameraHandler cameraHandler, SignalBus signalBus) : base(signalBus)
     {
         this.occupancy = occupancy;
         this.cameraHandler = cameraHandler;
-        this.stateMachine = stateMachine;
     }
-
     
-    public void Enter()
+    public override void Enter()
     {
         occupancy.Exit((player, warpDelta) => 
         {
             cameraHandler.WarpPlayerCamera(player, warpDelta);
-            stateMachine.ChangeState<CarEmptyState>();
+            ChangeState<CarEmptyState>();
         });
     }
 
-    public void Exit()
+    public override void Exit()
     {
         
     }
 
-    public void Tick()
+    public override void Tick()
     {
     }
 }
