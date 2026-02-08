@@ -1,0 +1,7 @@
+OVDF v1.1
+CarData, Assembly-CSharp
+MetaGuid:f2efd502aba26d4478aa6f5fa5435539
+
+# maxMotorTorque
+* [Sirenix.OdinInspector.ProgressBarAttribute]
+	Segmented = False
