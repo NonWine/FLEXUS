@@ -15,6 +15,7 @@ public class CarInstaller : MonoInstaller
         VFX();
         SubComponents();
         Signals();
+        Physics();
         StateMachine();
         Container.Bind<CarFacade>().AsSingle();
     }
@@ -69,7 +70,15 @@ public class CarInstaller : MonoInstaller
         Container.BindInterfacesAndSelfTo<CarInteractionHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarUxHandler>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarInputHandler>().AsSingle();
-        Container.BindInterfacesAndSelfTo<CarPhysics>().AsSingle();
         Container.BindInterfacesAndSelfTo<CarVisuals>().AsSingle();
+    }
+    
+    private void Physics()
+    {
+        Container.BindInterfacesTo<CarMotorModule>().AsCached();
+        Container.Bind<ICarPhysicsModule>().To<CarSteeringModule>().AsCached();
+        Container.Bind<ICarPhysicsModule>().To<CarFrictionModule>().AsCached();
+        Container.Bind<ICarPhysicsModule>().To<CarStabilizerModule>().AsCached();
+        Container.BindInterfacesAndSelfTo<CarPhysics>().AsSingle();
     }
 }

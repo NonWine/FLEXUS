@@ -1,119 +1,43 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using Zenject;
 
-public class CarPhysics : IFixedTickable, IVehiclePhysics
+public class CarPhysics : IFixedTickable, IInitializable, IVehiclePhysics
 {
     private const float MS_TO_KMH = 3.6f;
-    private const float INPUT_THRESHOLD = 0.1f;
-    private const float REVERSE_SPEED_THRESHOLD = -1f;
-    private const float FORWARD_SPEED_THRESHOLD = 1f;
-    private const float STEER_HELPER_MULTIPLIER = 10f;
 
-    private readonly Rigidbody rb;
-    private readonly CarData data;
-    private readonly ICarInput input;
-    private readonly WheelColliders wheels;
- 
-    public float CurrentSpeedKmH => rb.linearVelocity.magnitude * MS_TO_KMH;
-    public float CurrentBrakeTorque { get; private set; }
-    public float AngularVelocityY => Mathf.Abs(rb.angularVelocity.y);
+    private readonly List<ICarPhysicsModule> modules;
+    private readonly ICarMotor motor;
+    private readonly Rigidbody rigidbody;
+    private readonly CarData carData;
 
-    public CarPhysics(Rigidbody rb, CarData data, ICarInput input, WheelColliders wheels)
+    public float CurrentSpeedKmH => rigidbody.linearVelocity.magnitude * MS_TO_KMH;
+    public float CurrentBrakeTorque => motor.CurrentBrakeTorque;
+    public float AngularVelocityY => Mathf.Abs(rigidbody.angularVelocity.y); 
+
+    public CarPhysics(Rigidbody rb, CarData carData, List<ICarPhysicsModule> modules, ICarMotor motor)
     {
-        this.rb = rb;
-        this.data = data;
-        this.input = input;
-        this.wheels = wheels;
+        this.carData = carData;
+        this.rigidbody = rb;
+        this.modules = modules;
+        this.motor = motor;
         
-        this.rb.centerOfMass = this.data.centerOfMassOffset;
-        SetInitialFriction();
+        rigidbody.centerOfMass = carData.centerOfMassOffset;
     }
 
-    private void SetInitialFriction()
+    public void Initialize()
     {
-        SetWheelStiffness(wheels.frontLeft, data.normalStiffness);
-        SetWheelStiffness(wheels.frontRight, data.normalStiffness);
-        SetWheelStiffness(wheels.rearLeft, data.normalStiffness);
-        SetWheelStiffness(wheels.rearRight, data.normalStiffness);
+        foreach (var module in modules)
+        {
+            module.Initialize();
+        }
     }
 
     public void FixedTick()
     {
-        HandleMotor();
-        HandleSteering();
-        HandleHandbrakeFriction();
-        ApplySteerHelper();
-    }
-
-    private void HandleMotor()
-    {
-        float forwardSpeed = Vector3.Dot(rb.transform.forward, rb.linearVelocity) * MS_TO_KMH;
-        float targetMotorTorque = 0;
-        float targetBrakeTorque = input.Brake * data.brakeTorque;
-
-        if (input.Throttle > INPUT_THRESHOLD)
+        foreach (var module in modules)
         {
-            if (forwardSpeed < REVERSE_SPEED_THRESHOLD) targetBrakeTorque = data.brakeTorque;
-            else if (Mathf.Abs(forwardSpeed) < data.maxSpeed) targetMotorTorque = input.Throttle * data.maxMotorTorque;
-        }
-        else if (input.Throttle < -INPUT_THRESHOLD)
-        {
-            if (forwardSpeed > FORWARD_SPEED_THRESHOLD) targetBrakeTorque = data.brakeTorque;
-            else if (Mathf.Abs(forwardSpeed) < data.maxSpeed) targetMotorTorque = input.Throttle * data.maxMotorTorque;
-        }
-
-        CurrentBrakeTorque = (Mathf.Abs(targetMotorTorque) > INPUT_THRESHOLD) ? 0 : Mathf.Lerp(CurrentBrakeTorque, targetBrakeTorque, Time.fixedDeltaTime * data.accelerationLerp);
-
-        ApplyDriveTorque(targetMotorTorque);
-
-        float rearBrake = input.IsHandbraking ? data.handbrakeTorque : CurrentBrakeTorque;
-        wheels.frontLeft.brakeTorque = CurrentBrakeTorque;
-        wheels.frontRight.brakeTorque = CurrentBrakeTorque;
-        wheels.rearLeft.brakeTorque = rearBrake;
-        wheels.rearRight.brakeTorque = rearBrake;
-    }
-
-    private void ApplyDriveTorque(float totalTorque)
-    {
-        CarPhysicsUtils.CalculateTorqueDistribution(data.driveType, out float frontShare, out float rearShare);
-
-        wheels.frontLeft.motorTorque = (totalTorque * frontShare) / 2f;
-        wheels.frontRight.motorTorque = (totalTorque * frontShare) / 2f;
-        wheels.rearLeft.motorTorque = (totalTorque * rearShare) / 2f;
-        wheels.rearRight.motorTorque = (totalTorque * rearShare) / 2f;
-    }
-
-    private void HandleHandbrakeFriction()
-    {
-        float currentRearStiffness = input.IsHandbraking ? data.driftStiffness : data.normalStiffness;
-        SetWheelStiffness(wheels.rearLeft, currentRearStiffness);
-        SetWheelStiffness(wheels.rearRight, currentRearStiffness);
-    }
-
-    private void SetWheelStiffness(WheelCollider wheel, float stiffness)
-    {
-        WheelFrictionCurve sidewaysFriction = wheel.sidewaysFriction;
-        sidewaysFriction.stiffness = stiffness;
-        wheel.sidewaysFriction = sidewaysFriction;
-    }
-
-    private void HandleSteering()
-    {
-        float speedFactor = CurrentSpeedKmH / data.maxSpeed;
-        float dynamicSteerAngle = Mathf.Lerp(data.maxSteeringAngle, data.minSteeringAngle, speedFactor);
-        float targetSteerAngle = input.Steer * dynamicSteerAngle;
-        
-        wheels.frontLeft.steerAngle = targetSteerAngle;
-        wheels.frontRight.steerAngle = targetSteerAngle;
-    }
-
-    private void ApplySteerHelper()
-    {
-        if (Mathf.Abs(input.Steer) < INPUT_THRESHOLD)
-        {
-            Vector3 angularVel = rb.angularVelocity;
-            angularVel.y *= (1f - data.steerHelper * Time.fixedDeltaTime * STEER_HELPER_MULTIPLIER);
-            rb.angularVelocity = angularVel;
+            module.OnFixedTick();
         }
     }
 }

@@ -2,7 +2,7 @@
 
 public abstract class  CarState: IState 
 {
-   [Inject] protected readonly SignalBus signalBus;
+   [Inject] protected SignalBus signalBus;
    
     
     public abstract void Enter();
