@@ -1,7 +1,5 @@
-﻿using UnityEngine;
-
-[CreateAssetMenu(fileName = "NewCarVFXSettings", menuName = "Configs/Car/Car VFX Settings")]
-public class CarVFXSettings : ScriptableObject
+﻿[System.Serializable]
+public class CarVFXSettingsData
 {
     public float minSpeedForEffects;
     public float driftAngularVelThreshold;

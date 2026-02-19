@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewCarSoundSettings", menuName = "Configs/Car/Car Sound Settings")]
-public class CarSoundSettings : ScriptableObject
+[System.Serializable]
+public class CarSoundSettingsData 
 {
     [Header("Engine Sound")]
     public float idlePitch = 0.7f;

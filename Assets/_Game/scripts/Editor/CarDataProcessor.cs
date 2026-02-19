@@ -134,8 +134,6 @@ public class CarDataProcessor : OdinAttributeProcessor<CarData>
 
     private bool IsReferenceMember(string name)
     {
-        return name == nameof(CarData.inputSettings) || 
-               name == nameof(CarData.soundSettings) || 
-               name == nameof(CarData.vfxSettings);
+        return name == nameof(CarData.inputSettings);
     }
 }

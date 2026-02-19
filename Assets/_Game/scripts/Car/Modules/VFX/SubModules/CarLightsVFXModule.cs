@@ -4,9 +4,9 @@ public class CarLightsVFXModule : ICarVFXModule
 {
     private readonly ICarInput input;
     private readonly CarVFXView view;
-    private readonly CarVFXSettings settings;
+    private readonly CarVFXSettingsData settings;
 
-    public CarLightsVFXModule(ICarInput input, CarVFXView view, CarVFXSettings settings)
+    public CarLightsVFXModule(ICarInput input, CarVFXView view, CarVFXSettingsData settings)
     {
         this.input = input;
         this.view = view;

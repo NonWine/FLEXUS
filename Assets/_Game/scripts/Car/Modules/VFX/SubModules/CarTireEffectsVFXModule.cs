@@ -5,9 +5,9 @@ public class CarTireEffectsVFXModule : ICarVFXModule
     private readonly ICarInput input;
     private readonly IVehiclePhysics physics;
     private readonly CarVFXView view;
-    private readonly CarVFXSettings settings;
+    private readonly CarVFXSettingsData settings;
 
-    public CarTireEffectsVFXModule(ICarInput input, IVehiclePhysics physics, CarVFXView view, CarVFXSettings settings)
+    public CarTireEffectsVFXModule(ICarInput input, IVehiclePhysics physics, CarVFXView view, CarVFXSettingsData settings)
     {
         this.input = input;
         this.physics = physics;

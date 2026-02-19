@@ -24,8 +24,6 @@ public class CarData : ScriptableObject
     public float maxExitSpeedKmH = 15f;
 
     public CarInputSettings inputSettings;
-    public CarSoundSettings soundSettings;
-    public CarVFXSettings vfxSettings;
 
     private void Reset()
     {

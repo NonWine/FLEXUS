@@ -16,13 +16,13 @@ public class CarEngineSoundModule : ICarSoundModule
     private readonly ICarInput input;
     private readonly IVehiclePhysics physics; 
     private readonly CarSoundView view;
-    private readonly CarSoundSettings settings;
+    private readonly CarSoundSettingsData settings;
     private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
     private float currentPitch;
     private bool isEngineRunning;
 
-    public CarEngineSoundModule(ICarInput input, IVehiclePhysics physics, CarSoundView view, CarSoundSettings settings)
+    public CarEngineSoundModule(ICarInput input, IVehiclePhysics physics, CarSoundView view, CarSoundSettingsData settings)
     {
         this.input = input;
         this.physics = physics;

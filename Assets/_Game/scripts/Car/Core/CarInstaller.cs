@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using Zenject;
 
-
 public class CarInstaller : MonoInstaller
 {
     [SerializeField] private CarView view;
@@ -49,7 +48,6 @@ public class CarInstaller : MonoInstaller
     private void Sounds()
     {
         Container.BindInstance(soundView).AsSingle();
-        Container.BindInstance(view.CarData.soundSettings).AsSingle();
         Container.BindInterfacesAndSelfTo<CarEngineSoundModule>().AsCached();
         Container.BindInterfacesAndSelfTo<CarTireSoundModule>().AsCached();
         Container.BindInterfacesAndSelfTo<CarSoundController>().AsSingle().NonLazy();
@@ -58,7 +56,6 @@ public class CarInstaller : MonoInstaller
     private void VFX()
     {
         Container.BindInstance(vfxView).AsSingle();
-        Container.BindInstance(view.CarData.vfxSettings).AsSingle();
         Container.BindInterfacesAndSelfTo<CarLightsVFXModule>().AsCached();
         Container.BindInterfacesAndSelfTo<CarTireEffectsVFXModule>().AsCached();
         Container.BindInterfacesAndSelfTo<CarVFXController>().AsSingle().NonLazy();

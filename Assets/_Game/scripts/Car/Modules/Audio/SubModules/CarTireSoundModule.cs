@@ -7,9 +7,9 @@ public class CarTireSoundModule : ICarSoundModule
     private readonly ICarInput input;
     private readonly IVehiclePhysics vehiclePhysics;
     private readonly CarSoundView view;
-    private readonly CarSoundSettings settings;
+    private readonly CarSoundSettingsData settings;
 
-    public CarTireSoundModule(ICarInput input, IVehiclePhysics vehiclePhysics, CarSoundView view, CarSoundSettings settings)
+    public CarTireSoundModule(ICarInput input, IVehiclePhysics vehiclePhysics, CarSoundView view, CarSoundSettingsData settings)
     {
         this.input = input;
         this.vehiclePhysics = vehiclePhysics;
