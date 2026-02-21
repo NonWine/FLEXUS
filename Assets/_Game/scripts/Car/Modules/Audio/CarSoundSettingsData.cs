@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using System;
+using UnityEngine;
 
 [System.Serializable]
 public class CarSoundSettingsData 
@@ -16,4 +17,24 @@ public class CarSoundSettingsData
     public float screechMinSpeed = 3f;
     public float screechMinAngularVel = 1.5f;
     public float screechMaxVolume = 0.7f;
+
+    public CarSoundSettingsData()
+    {
+    }
+
+    public CarSoundSettingsData(CarSoundSettingsData source)
+    {
+        if (source == null) throw new ArgumentNullException(nameof(source));
+
+        idlePitch = source.idlePitch;
+        maxPitch = source.maxPitch;
+        pitchSpeedMultiplier = source.pitchSpeedMultiplier;
+        pitchInputMultiplier = source.pitchInputMultiplier;
+        engineVolumeLerpSpeed = source.engineVolumeLerpSpeed;
+        pitchLerpSpeed = source.pitchLerpSpeed;
+        screechVolumeSpeed = source.screechVolumeSpeed;
+        screechMinSpeed = source.screechMinSpeed;
+        screechMinAngularVel = source.screechMinAngularVel;
+        screechMaxVolume = source.screechMaxVolume;
+    }
 }

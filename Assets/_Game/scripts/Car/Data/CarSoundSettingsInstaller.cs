@@ -12,8 +12,11 @@ public class CarSoundSettingsInstaller : ScriptableObjectInstaller<CarSoundSetti
     
     public override void InstallBindings()
     {
-        Container.BindInstance(Data);
-        Container.BindInstance(CarVFXSettingsData);
+        var soundData = Data != null ? new CarSoundSettingsData(Data) : new CarSoundSettingsData();
+        var vfxData = CarVFXSettingsData != null ? new CarVFXSettingsData(CarVFXSettingsData) : new CarVFXSettingsData();
+
+        Container.BindInstance(soundData);
+        Container.BindInstance(vfxData);
     }
     
 }

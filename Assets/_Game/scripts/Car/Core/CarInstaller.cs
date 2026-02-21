@@ -16,6 +16,7 @@ public class CarInstaller : MonoInstaller
         Signals();
         Physics();
         StateMachine();
+
         Container.Bind<CarFacade>().AsSingle();
     }
 
@@ -79,4 +80,5 @@ public class CarInstaller : MonoInstaller
         Container.Bind<ICarPhysicsModule>().To<CarStabilizerModule>().AsCached();
         Container.BindInterfacesAndSelfTo<CarPhysics>().AsSingle();
     }
+    
 }
