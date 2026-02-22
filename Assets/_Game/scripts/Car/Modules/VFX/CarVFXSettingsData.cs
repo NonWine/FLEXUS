@@ -1,6 +1,7 @@
 using System;
+using Sirenix.OdinInspector;
 
-[System.Serializable]
+[System.Serializable, InlineProperty, HideLabel]
 public class CarVFXSettingsData
 {
     public float minSpeedForEffects;

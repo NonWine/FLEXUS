@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System;
+using Sirenix.OdinInspector;
 
-[System.Serializable]
+[System.Serializable, InlineProperty, HideLabel]
 public class CarData
 {
 

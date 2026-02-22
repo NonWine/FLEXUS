@@ -1,7 +1,8 @@
 using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
-[System.Serializable]
+[System.Serializable, InlineProperty, HideLabel]
 public class CarSoundSettingsData 
 {
     [Header("Engine Sound")]
