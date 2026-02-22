@@ -4,7 +4,6 @@ using System;
 
 public class CarView : MonoBehaviour, IInteractable
 {
-    [field:SerializeField] public CarData CarData { get; private set; }
     [field:SerializeField]  public Transform ExitPoint { get; private set; }
     [field:SerializeField]  public Rigidbody Rigidbody { get; private set; }
     [field:SerializeField]  public WheelColliders Wheels { get; private set; }

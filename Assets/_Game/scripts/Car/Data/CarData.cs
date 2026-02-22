@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 using System;
 
-[CreateAssetMenu(fileName = "NewCarData", menuName = "Configs/Car/Car Data")]
-public class CarData : ScriptableObject
+[System.Serializable]
+public class CarData
 {
-    public string CarDataId;
 
     public float maxMotorTorque = 2500f;
     public float maxSpeed = 120f;
@@ -25,11 +24,30 @@ public class CarData : ScriptableObject
 
     public CarInputSettings inputSettings;
 
-    private void Reset()
+    public CarData()
     {
-        if (string.IsNullOrEmpty(CarDataId))
-        {
-            CarDataId = Guid.NewGuid().ToString();
-        }
     }
+
+    public CarData(CarData source)
+    {
+        if (source == null) throw new ArgumentNullException(nameof(source));
+
+        maxMotorTorque = source.maxMotorTorque;
+        maxSpeed = source.maxSpeed;
+        accelerationLerp = source.accelerationLerp;
+        driveType = source.driveType;
+        maxSteeringAngle = source.maxSteeringAngle;
+        minSteeringAngle = source.minSteeringAngle;
+        steerHelper = source.steerHelper;
+        brakeTorque = source.brakeTorque;
+        handbrakeTorque = source.handbrakeTorque;
+        CarOutlineColor = source.CarOutlineColor;
+        OutlineWidth = source.OutlineWidth;
+        centerOfMassOffset = source.centerOfMassOffset;
+        normalStiffness = source.normalStiffness;
+        driftStiffness = source.driftStiffness;
+        maxExitSpeedKmH = source.maxExitSpeedKmH;
+        inputSettings = source.inputSettings;
+    }
+    
 }

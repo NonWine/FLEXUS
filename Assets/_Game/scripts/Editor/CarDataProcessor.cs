@@ -30,13 +30,6 @@ public class CarDataProcessor : OdinAttributeProcessor<CarData>
 
     public override void ProcessChildMemberAttributes(InspectorProperty parentProperty, MemberInfo member, List<Attribute> attributes)
     {
-        if (member.Name == nameof(CarData.CarDataId))
-        {
-            attributes.Add(new BoxGroupAttribute("Global_Identity", true, false, 0));
-            attributes.Add(new ReadOnlyAttribute());
-            attributes.Add(new LabelWidthAttribute(70));
-        }
-
         if (IsGeneralMember(member.Name))
         {
             attributes.Add(new TabGroupAttribute(MAIN_TAB, GENERAL_GROUP, SdfIconType.Wrench));

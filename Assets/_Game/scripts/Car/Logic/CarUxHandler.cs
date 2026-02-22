@@ -4,12 +4,14 @@ using Zenject;
 public class CarUxHandler : IInitializable, IDisposable
 {
     private readonly CarView view;
+    private readonly CarData data;
     private readonly SignalBus signalBus;
 
 
-    public CarUxHandler(CarView view, SignalBus signalBus)
+    public CarUxHandler(CarView view, CarData data, SignalBus signalBus)
     {
         this.view = view;
+        this.data = data;
         this.signalBus = signalBus;
     }
 
@@ -40,8 +42,8 @@ public class CarUxHandler : IInitializable, IDisposable
     {
         if (view.Outline != null)
         {
-            view.Outline.OutlineColor = view.CarData.CarOutlineColor;
-            view.Outline.OutlineWidth = view.CarData.OutlineWidth;
+            view.Outline.OutlineColor = data.CarOutlineColor;
+            view.Outline.OutlineWidth = data.OutlineWidth;
         }
     }
 

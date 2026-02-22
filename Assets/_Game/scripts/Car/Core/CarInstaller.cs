@@ -39,7 +39,6 @@ public class CarInstaller : MonoInstaller
     private void ViewDependencies()
     {
         Container.BindInstance(view).AsSingle();
-        Container.BindInstance(view.CarData).AsSingle();
         Container.BindInstance(view.Rigidbody).AsSingle();
         Container.BindInstance(view.Wheels).AsSingle();
         Container.BindInstance(view.Meshes).AsSingle();

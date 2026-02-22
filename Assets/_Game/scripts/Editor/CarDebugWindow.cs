@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
@@ -92,9 +91,10 @@ public class CarDebugWindow : OdinEditorWindow
                 continue;
             }
 
-            var carData = container.TryResolve<CarData>();
-            
-            CarRuntimeEntry carRuntimeEntry = new CarRuntimeEntry(context, carData.CarDataId, sound, vfx);
+            var carFacade = container.TryResolve<CarFacade>();
+            var carDataId =  carFacade.CarId;
+
+            CarRuntimeEntry carRuntimeEntry = new CarRuntimeEntry(context, carDataId, sound, vfx);
             cars.Add(carRuntimeEntry);
         }
     }
