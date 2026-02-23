@@ -40,18 +40,18 @@ public class CarUxHandler : IInitializable, IDisposable
 
     private void ShowOutline()
     {
-        if (view.Outline != null)
+        if (view.QuickOutline != null)
         {
-            view.Outline.OutlineColor = data.CarOutlineColor;
-            view.Outline.OutlineWidth = data.OutlineWidth;
+            view.QuickOutline.OutlineColor = data.CarOutlineColor;
+            view.QuickOutline.OutlineWidth = data.OutlineWidth;
         }
     }
 
     private void HideOutline()
     {
-        if (view.Outline != null)
+        if (view.QuickOutline != null)
         {
-            view.Outline.OutlineWidth = 0f;
+            view.QuickOutline.OutlineWidth = 0f;
         }
     }
 }
