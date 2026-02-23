@@ -24,6 +24,7 @@ public class CarCameraHandler
 
         if (active)
         {
+            carCamera.PreviousStateIsValid = false;
             carCamera.Follow = view.transform;
             carCamera.LookAt = view.transform;
             carCamera.Priority = CameraConstants.ActiveVehiclePriority;
