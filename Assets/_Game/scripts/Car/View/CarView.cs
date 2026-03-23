@@ -8,7 +8,7 @@ public class CarView : MonoBehaviour, IInteractable
     [field:SerializeField]  public Rigidbody Rigidbody { get; private set; }
     [field:SerializeField]  public WheelColliders Wheels { get; private set; }
     [field:SerializeField]  public WheelMeshes Meshes { get; private set; }
-    [field: SerializeField] public Outline Outline { get; private set; }
+    [field: SerializeField] public QuickOutline QuickOutline { get; private set; }
     
     public event Action<GameObject> OnInteractedEvent;
     public event Action OnShowUxEvent;
